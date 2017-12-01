@@ -1,2 +1,3 @@
 /domains/
 *.log
+/.config.bash_rc
