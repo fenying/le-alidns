@@ -33,6 +33,7 @@ API_RESULT=$(aliyuncli alidns AddDomainRecord \
     --Type TXT \
     --RR "${API_RR}" \
     --Value "${CERTBOT_VALIDATION}" \
+    --output table \
 )
 
 write_log "API Result: ${API_RESULT}";

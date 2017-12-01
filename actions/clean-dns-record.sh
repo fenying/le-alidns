@@ -18,7 +18,8 @@ for RecordId in $RECORD_ID_LIST
 do
 echo "Deleting DNS record of Id ${RecordId}" >> $CFG_LOG_FILE
 API_RESULT=$(aliyuncli alidns DeleteDomainRecord \
-    --RecordId ${RecordId}
+    --RecordId ${RecordId} \
+    --output table \
 )
 
 echo "API Result: ${API_RESULT}" >> $CFG_LOG_FILE
