@@ -20,7 +20,12 @@ write_log "Certbot Validation: ${CERTBOT_VALIDATION}";
 
 API_DomainName=$(echo $CERTBOT_DOMAIN | grep -P "\w+\.\w+$" -o)
 DomainRecord=$(echo $CERTBOT_DOMAIN | grep -P ".+(?=\.\w+\.\w+$)" -o)
-API_RR=_acme-challenge.$DomainRecord
+if [[ "$DomainRecord" == "" ]]; then
+    API_RR=_acme-challenge
+else
+    API_RR=_acme-challenge.$DomainRecord
+fi;
+
 
 write_log "Domain: ${API_DomainName}";
 
