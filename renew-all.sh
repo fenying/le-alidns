@@ -2,7 +2,7 @@
 
 # Initialize the path to root of LE-AliDNS
 export LEALIDNS_ACTION=renew-all
-export LEALIDNS_ROOT=$(dirname "$0")/
+export LEALIDNS_ROOT=$(cd `dirname $0`; pwd)/
 
 # Load configuration
 source ${LEALIDNS_ROOT}actions/load-config.sh
