@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Initialize the configuration
-rm -f $LEALIDNS_CONFIG_BASH_RC
 
 if [ -z "$LEALIDNS_CONFIG" ]
 then
@@ -18,10 +17,13 @@ echo "Configuration file ${CONFIG_FILE} not found."
 exit -1
 fi
 
-CFG_FIELDS="domains email log-file certbot-root rsa-key-size after-cert before-cert after-new-cert"
-CFG_RSA_KEY_SIZE=2048
-CFG_LOG_FILE=./le-alidns.log
-CFG_CERTBOT_ROOT=/usr/local/certbot
+export CFG_FIELDS="domains email log-file certbot-root rsa-key-size"
+export CFG_FIELDS="${CFG_FIELDS} after-cert before-cert after-new-cert"
+export CFG_FIELDS="${CFG_FIELDS} no-auto-upgrade"
+export CFG_RSA_KEY_SIZE=2048
+export CFG_LOG_FILE=./le-alidns.log
+export CFG_CERTBOT_ROOT=/usr/local/certbot
+export CFG_NO_AUTO_UPGRADE=on
 
 for line in `cat ${CONFIG_FILE} | tr -d '[ \t]'`
 do
@@ -50,61 +52,51 @@ do
 
     if [ "$FIELD_NAME" == "domains" ]
     then
-        CFG_DOMAINS="$FIELD_VALUE ${CFG_DOMAINS}"
+        export CFG_DOMAINS="$FIELD_VALUE ${CFG_DOMAINS}"
     fi;
 
     if [ "$FIELD_NAME" == "domain" ]
     then
-        CFG_DOMAINS="${FIELD_VALUE} ${CFG_DOMAINS}"
+        export CFG_DOMAINS="${FIELD_VALUE} ${CFG_DOMAINS}"
     fi;
 
     if [ "$FIELD_NAME" == "email" ]
     then
-        CFG_EMAIL=$FIELD_VALUE
+        export CFG_EMAIL=$FIELD_VALUE
     fi;
 
     if [ "$FIELD_NAME" == "certbot-root" ]
     then
-        CFG_CERTBOT_ROOT=$FIELD_VALUE
+        export CFG_CERTBOT_ROOT=$FIELD_VALUE
     fi;
 
     if [ "$FIELD_NAME" == "log-file" ]
     then
-        CFG_LOG_FILE=$FIELD_VALUE
+        export CFG_LOG_FILE=$FIELD_VALUE
     fi;
 
     if [ "$FIELD_NAME" == "rsa-key-size" ]
     then
-        CFG_RSA_KEY_SIZE=$FIELD_VALUE
+        export CFG_RSA_KEY_SIZE=$FIELD_VALUE
     fi;
 
     if [ "$FIELD_NAME" == "after-new-cert" ]
     then
-        CFG_ON_NEW_CERT="--deploy-hook $FIELD_VALUE"
+        export CFG_ON_NEW_CERT="--deploy-hook $FIELD_VALUE"
     fi;
 
     if [ "$FIELD_NAME" == "before-cert" ]
     then
-        CFG_ON_START=$FIELD_VALUE
+        export CFG_ON_START=$FIELD_VALUE
     fi;
 
     if [ "$FIELD_NAME" == "after-cert" ]
     then
-        CFG_ON_END=$FIELD_VALUE
+        export CFG_ON_END=$FIELD_VALUE
+    fi;
+
+    if [ "$FIELD_NAME" == "no-auto-upgrade" ]
+    then
+        export CFG_NO_AUTO_UPGRADE=$FIELD_VALUE
     fi;
 done
-
-echo "" > $LEALIDNS_CONFIG_BASH_RC
-echo "export CFG_LOG_FILE=${CFG_LOG_FILE}" >> $LEALIDNS_CONFIG_BASH_RC
-echo "export CFG_CERTBOT_ROOT=${CFG_CERTBOT_ROOT}" >> $LEALIDNS_CONFIG_BASH_RC
-echo "export CFG_EMAIL=${CFG_EMAIL}" >> $LEALIDNS_CONFIG_BASH_RC
-echo "export CFG_DOMAINS='${CFG_DOMAINS}'" >> $LEALIDNS_CONFIG_BASH_RC
-echo "export CFG_RSA_KEY_SIZE=${CFG_RSA_KEY_SIZE}" >> $LEALIDNS_CONFIG_BASH_RC
-echo "export CFG_ON_NEW_CERT=${CFG_ON_NEW_CERT}" >> $LEALIDNS_CONFIG_BASH_RC
-echo "export CFG_ON_START=${CFG_ON_START}" >> $LEALIDNS_CONFIG_BASH_RC
-echo "export CFG_ON_END=${CFG_ON_END}" >> $LEALIDNS_CONFIG_BASH_RC
-
-echo "- Using certbot at ${CFG_CERTBOT_ROOT}."
-echo "- Using E-Mail ${CFG_EMAIL}."
-echo "- Saving logs to file ${CFG_LOG_FILE}."
-echo ""

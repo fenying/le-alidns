@@ -3,20 +3,9 @@
 # Initialize the path to root of LE-AliDNS
 export LEALIDNS_ACTION=renew-all
 export LEALIDNS_ROOT=$(dirname "$0")/
-export LEALIDNS_CONFIG_BASH_RC=${LEALIDNS_ROOT}.config.bash_rc
 
 # Load configuration
-sh ${LEALIDNS_ROOT}actions/load-config.sh
-
-if [[ ! -f $LEALIDNS_CONFIG_BASH_RC ]]
-then
-    echo "Failed to load configurations."
-    exit -1;
-fi
-
-source $LEALIDNS_CONFIG_BASH_RC
-
-rm -f $LEALIDNS_CONFIG_BASH_RC
+source ${LEALIDNS_ROOT}actions/load-config.sh
 
 declare WRITE_LOG_TARGET=$CFG_LOG_FILE
 
@@ -31,6 +20,11 @@ if [[ "$CFG_ON_START" != "" && -x $CFG_ON_START ]]; then
     $CFG_ON_START
 fi
 
+if [[ "$CFG_NO_AUTO_UPGRADE" == "on" ]]; then
+    ARG_NO_AUTO_UPGRADE="--no-bootstrap --no-self-upgrade"
+    write_log "Turned off certbot aoto-updates.";
+fi
+
 write_log "Renew task started at $(date '+%Y-%m-%d %H:%M:%S')";
 
 # The path to list file of DNS record id
@@ -40,31 +34,21 @@ rm -f $RECORD_ID_LIST_FILE
 
 mkdir ${LEALIDNS_ROOT}domains -p
 
-if [ "$LEALIDNS_FORCE" == "1" ]
-then
-
-    CERTBOT_RESULT=$($CFG_CERTBOT_ROOT/certbot-auto renew \
-        --manual \
-        --force-renew \
-        --manual-public-ip-logging-ok \
-        --preferred-challenges dns \
-        --agree-tos \
-        --email $CFG_EMAIL \
-        --rsa-key-size $CFG_RSA_KEY_SIZE \
-        $CFG_ON_NEW_CERT \
-        --manual-auth-hook ${LEALIDNS_ROOT}actions/create-dns-record.sh)
-else
-
-    CERTBOT_RESULT=$($CFG_CERTBOT_ROOT/certbot-auto renew \
-        --manual \
-        --manual-public-ip-logging-ok \
-        --preferred-challenges dns \
-        --agree-tos \
-        --email $CFG_EMAIL \
-        --rsa-key-size $CFG_RSA_KEY_SIZE \
-        $CFG_ON_NEW_CERT \
-        --manual-auth-hook ${LEALIDNS_ROOT}actions/create-dns-record.sh)
+if [[ "$LEALIDNS_FORCE" == "1" ]]; then
+ARG_FORCE="--force-renew"
 fi
+
+CERTBOT_RESULT=$($CFG_CERTBOT_ROOT/certbot-auto renew \
+    --manual \
+    --manual-public-ip-logging-ok \
+    --preferred-challenges dns \
+    $ARG_FORCE \
+    --agree-tos \
+    --email $CFG_EMAIL \
+    --rsa-key-size $CFG_RSA_KEY_SIZE \
+    $CFG_ON_NEW_CERT \
+    $ARG_NO_AUTO_UPGRADE \
+    --manual-auth-hook ${LEALIDNS_ROOT}actions/create-dns-record.sh)
 
 write_log "Details: $CERTBOT_RESULT";
 

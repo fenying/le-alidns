@@ -20,9 +20,25 @@
 使用 Git Clone 仓库，例如：
 
 ```sh
-cd /usr/local
-git clone https://github.com/fenying/le-alidns.git
-cd le-alidns
+LE_ALIDNS_INSTALL_ROOT=/usr/local
+LE_ALIDNS_DIRNAME=le-alidns
+LE_ALIDNS_ROOT="${LE_ALIDNS_INSTALL_ROOT}/${LE_ALIDNS_DIRNAME}"
+cd $LE_ALIDNS_INSTALL_ROOT
+git clone https://github.com/fenying/le-alidns.git $LE_ALIDNS_DIRNAME
+cd $LE_ALIDNS_ROOT
+find '.' -name '*.sh' -exec chmod 0700 {} \; # 设置 Shell 脚本执行权限
+git config --local core.filemode false # 忽略该git仓库的文件权限属性改动
+```
+
+### 更新版本
+
+```sh
+LE_ALIDNS_INSTALL_ROOT=/usr/local
+LE_ALIDNS_DIRNAME=le-alidns
+LE_ALIDNS_ROOT="${LE_ALIDNS_INSTALL_ROOT}/${LE_ALIDNS_DIRNAME}"
+cd $LE_ALIDNS_ROOT
+git config --local core.filemode false
+git pull
 find '.' -name '*.sh' -exec chmod 0700 {} \; # 设置 Shell 脚本执行权限
 ```
 
@@ -39,6 +55,23 @@ find '.' -name '*.sh' -exec chmod 0700 {} \; # 设置 Shell 脚本执行权限
     > Access-Key 需要 AliyunDNSFullAccess 权限。
 
 2.  复制 default.conf 配置文件为 /etc/le-alidns.conf，并根据需要配置。
+
+### 配置 Pip 源
+
+由于某些不可描述的原因，对于在国内使用 Pip 会出现无法下载或者下载极其缓慢的情况。
+这个情况请修改 Pip 配置文件（一般是 `~/.pip/pip.conf`），使用清华大学的源：
+
+> 不要使用阿里云的源。
+
+```ini
+[global]
+index-url=https://pypi.tuna.tsinghua.edu.cn/simple
+
+[install]
+trusted-host=pypi.tuna.tsinghua.edu.cn
+```
+
+> 参考：https://github.com/certbot/certbot/issues/2516
 
 ### 签发新证书
 

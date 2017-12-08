@@ -3,20 +3,9 @@
 # Initialize the path to root of LE-AliDNS
 export LEALIDNS_ACTION=sign-all
 export LEALIDNS_ROOT=$(dirname "$0")/
-export LEALIDNS_CONFIG_BASH_RC=${LEALIDNS_ROOT}.config.bash_rc
 
 # Load configuration
-sh ${LEALIDNS_ROOT}actions/load-config.sh
-
-if [[ ! -f $LEALIDNS_CONFIG_BASH_RC ]]
-then
-    echo "Failed to load configurations."
-    exit -1;
-fi
-
-source $LEALIDNS_CONFIG_BASH_RC
-
-rm -f $LEALIDNS_CONFIG_BASH_RC
+source ${LEALIDNS_ROOT}actions/load-config.sh
 
 # The path to list file of DNS record id
 export RECORD_ID_LIST_FILE=./dns-records
@@ -36,9 +25,12 @@ if [[ "$CFG_ON_START" != "" && -x $CFG_ON_START ]]; then
     $CFG_ON_START
 fi
 
-write_log "Sign task started at $(date '+%Y-%m-%d %H:%M:%S')";
+if [[ "$CFG_NO_AUTO_UPGRADE" == "on" ]]; then
+    NO_AUTO_UPGRADE="--no-bootstrap --no-self-upgrade"
+    write_log "Turned off certbot aoto-updates.";
+fi
 
-mkdir ${LEALIDNS_ROOT}domains -p
+write_log "Sign task started at $(date '+%Y-%m-%d %H:%M:%S')";
 
 # Split domains by ","
 
@@ -52,22 +44,21 @@ strsplitby() {
 
 CFG_DOMAINS=("$CFG_DOMAINS")
 
-echo "Requesting signing certificates for domains..."
+echo "Requesting certificates for domains..."
 echo ""
+
+CERTS_ROOT=/etc/letsencrypt/live/
 
 for domain in ${CFG_DOMAINS[@]}
 do
-    DOMAIN_DIR=${LEALIDNS_ROOT}domains/$domain/
 
-    if [ -f ${DOMAIN_DIR}lock ]
+    if [[ -f "${LEALIDNS_ROOT}domains/${domain}/lock" ]]
     then
         write_log "! Domain '${domain}' is alredy signed, ignored."
         write_log "  Please use renew command to refresh it."
         write_log ""
         continue;
     fi;
-
-    mkdir $DOMAIN_DIR -p
 
     if [[ $domain =~ "," ]]
     then
@@ -77,8 +68,20 @@ do
             ARG_DOMAINS="$ARG_DOMAINS -d $item"
         done
 
+        if [[ "$ARG_DOMAINS" == "" ]]; then
+            continue;
+        fi
+
         write_log "Requesting certificate for domains '${domain}'..."
     else
+
+        if [ -f ${CERTS_ROOT}${domain}/cert.pem ]
+        then
+            write_log "! Domain '${domain}' is alredy signed, ignored."
+            write_log "  Please use renew command to refresh it."
+            write_log ""
+            continue;
+        fi;
 
         ARG_DOMAINS="-d $domain"
 
@@ -96,12 +99,16 @@ do
             --rsa-key-size $CFG_RSA_KEY_SIZE \
             $ARG_DOMAINS \
             $CFG_ON_NEW_CERT \
+            $NO_AUTO_UPGRADE \
             --manual-auth-hook ${LEALIDNS_ROOT}actions/create-dns-record.sh)
     fi;
 
-    write_log "Details: $CERTBOT_RESULT"
+    if [[ ! $domain =~ "," ]]; then
+        mkdir -p "${LEALIDNS_ROOT}domains/${domain}";
+        touch "${LEALIDNS_ROOT}domains/${domain}/lock";
+    fi
 
-    touch ${DOMAIN_DIR}lock
+    write_log "Details: $CERTBOT_RESULT"
 done
 
 sh ${LEALIDNS_ROOT}actions/clean-dns-record.sh
