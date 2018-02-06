@@ -90,7 +90,7 @@ do
 
     if [[ "$LEALIDNS_DRY_RUN" != "1" ]]
     then
-        CERTBOT_RESULT=$($CFG_CERTBOT_ROOT/certbot-auto certonly \
+        CERTBOT_RESULT=$($CFG_CERTBOT_ROOT/$CFG_CERTBOT_CMD certonly \
             --manual \
             --manual-public-ip-logging-ok \
             --preferred-challenges dns \

@@ -17,12 +17,13 @@ echo "Configuration file ${CONFIG_FILE} not found."
 exit -1
 fi
 
-export CFG_FIELDS="domains email log-file certbot-root rsa-key-size"
+export CFG_FIELDS="domains email log-file certbot-root certbot-cmd rsa-key-size"
 export CFG_FIELDS="${CFG_FIELDS} after-cert before-cert after-new-cert"
 export CFG_FIELDS="${CFG_FIELDS} no-auto-upgrade"
 export CFG_RSA_KEY_SIZE=2048
 export CFG_LOG_FILE=./le-alidns.log
 export CFG_CERTBOT_ROOT=/usr/local/certbot
+export CFG_CERTBOT_CMD=certbot-auto
 export CFG_NO_AUTO_UPGRADE=on
 
 for line in `cat ${CONFIG_FILE} | tr -d '[ \t]'`
@@ -68,6 +69,11 @@ do
     if [ "$FIELD_NAME" == "certbot-root" ]
     then
         export CFG_CERTBOT_ROOT=$FIELD_VALUE
+    fi;
+
+    if [ "$FIELD_NAME" == "certbot-cmd" ]
+    then
+        export CFG_CERTBOT_CMD=$FIELD_VALUE
     fi;
 
     if [ "$FIELD_NAME" == "log-file" ]

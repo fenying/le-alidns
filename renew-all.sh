@@ -38,17 +38,20 @@ if [[ "$LEALIDNS_FORCE" == "1" ]]; then
 ARG_FORCE="--force-renew"
 fi
 
-CERTBOT_RESULT=$($CFG_CERTBOT_ROOT/certbot-auto renew \
-    --manual \
-    --manual-public-ip-logging-ok \
-    --preferred-challenges dns \
-    $ARG_FORCE \
-    --agree-tos \
-    --email $CFG_EMAIL \
-    --rsa-key-size $CFG_RSA_KEY_SIZE \
-    $CFG_ON_NEW_CERT \
-    $ARG_NO_AUTO_UPGRADE \
-    --manual-auth-hook ${LEALIDNS_ROOT}actions/create-dns-record.sh)
+if [[ "$LEALIDNS_DRY_RUN" != "1" ]]
+then
+    CERTBOT_RESULT=$($CFG_CERTBOT_ROOT/$CFG_CERTBOT_CMD renew \
+        --manual \
+        --manual-public-ip-logging-ok \
+        --preferred-challenges dns \
+        $ARG_FORCE \
+        --agree-tos \
+        --email $CFG_EMAIL \
+        --rsa-key-size $CFG_RSA_KEY_SIZE \
+        $CFG_ON_NEW_CERT \
+        $ARG_NO_AUTO_UPGRADE \
+        --manual-auth-hook ${LEALIDNS_ROOT}actions/create-dns-record.sh)
+fi;
 
 write_log "Details: $CERTBOT_RESULT";
 

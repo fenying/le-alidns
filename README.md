@@ -52,7 +52,10 @@ find '.' -name '*.sh' -exec chmod 0700 {} \; # 设置 Shell 脚本执行权限
 
 1.  运行脚本 initialize-env.sh 安装 Python 2.7, PIP, Aliyun-CLI, 
     Aliyun-SDK-AliDNS 等组件，并配置 Access-Key 和 Secret-Key。
-    > Access-Key 需要 AliyunDNSFullAccess 权限。
+    > Access-Key 需要 AliyunDNSFullAccess 权限。参考：
+    [配置命令行工具和 SDK](https://help.aliyun.com/document_detail/43039.html?spm=a2c4g.11186623.6.550.ap6b0e)。
+
+    > 注意阿里云命令行工具输出方式必须是 table。
 
 2.  复制 default.conf 配置文件为 /etc/le-alidns.conf，并根据需要配置。
 
@@ -85,7 +88,7 @@ trusted-host=pypi.tuna.tsinghua.edu.cn
 
 ## 作者
 
-Angus.Fenying <[i.am.x.fenying@gmail](mailto:i.am.x.fenying@gmail)>
+Angus.Fenying <[i.am.x.fenying@gmail.com](mailto:i.am.x.fenying@gmail.com)>
 
 ## License
 
