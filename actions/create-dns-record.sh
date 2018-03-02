@@ -18,14 +18,14 @@ write_log "Certbot Domain: ${CERTBOT_DOMAIN}";
 
 write_log "Certbot Validation: ${CERTBOT_VALIDATION}";
 
-API_DomainName=$(echo $CERTBOT_DOMAIN | grep -P "\w+\.\w+$" -o)
-DomainRecord=$(echo $CERTBOT_DOMAIN | grep -P ".+(?=\.\w+\.\w+$)" -o)
+API_DomainName=$(echo $CERTBOT_DOMAIN | grep -P "\w[-\w]*\.\w[-\w]*$" -o)
+DomainRecord=$(echo $CERTBOT_DOMAIN | grep -P ".+(?=\.\w[-\w]*\.\w[-\w]*$)" -o)
+
 if [[ "$DomainRecord" == "" ]]; then
     API_RR=_acme-challenge
 else
     API_RR=_acme-challenge.$DomainRecord
 fi;
-
 
 write_log "Domain: ${API_DomainName}";
 

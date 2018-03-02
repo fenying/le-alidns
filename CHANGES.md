@@ -1,8 +1,12 @@
 # Change logs
 
+## v0.2.3
+
+- 修复域名中带横线“-”时无法识别的 Bug。（Issue #2）
+
 ## v0.2.2
 
-- 配置文件添加 `certbot-root` 配置项以允许使用自定义的 Certbot 的命令名称。
+- 配置文件添加 `certbot-root` 配置项以允许使用自定义的 Certbot 的命令名称。（Issue #1）
 
 ## v0.2.1
 
