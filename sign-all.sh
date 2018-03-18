@@ -30,6 +30,15 @@ if [[ "$CFG_NO_AUTO_UPGRADE" == "on" ]]; then
     write_log "Turned off certbot aoto-updates.";
 fi
 
+if [[ "$CFG_ACME_VERSION" == "v2" ]]; then
+    USE_CUSTOM_SERVER="--server https://acme-v02.api.letsencrypt.org/directory"
+    CHALLENGE_METHOD=dns-01
+    write_log "Using ACMEv2 protocol.";
+else
+    CHALLENGE_METHOD=dns
+    write_log "Using ACMEv1 protocol.";
+fi
+
 write_log "Sign task started at $(date '+%Y-%m-%d %H:%M:%S')";
 
 # Split domains by ","
@@ -65,7 +74,7 @@ do
         domains=$(strsplitby "," "$domain");
         for item in ${domains[@]}
         do
-            ARG_DOMAINS="$ARG_DOMAINS -d $item"
+            ARG_DOMAINS="$ARG_DOMAINS -d \"$item\""
         done
 
         if [[ "$ARG_DOMAINS" == "" ]]; then
@@ -83,7 +92,7 @@ do
             continue;
         fi;
 
-        ARG_DOMAINS="-d $domain"
+        ARG_DOMAINS="-d \"$domain\""
 
         write_log "Requesting certificate for domain '${domain}'..."
     fi
@@ -93,7 +102,8 @@ do
         CERTBOT_RESULT=$($CFG_CERTBOT_ROOT/$CFG_CERTBOT_CMD certonly \
             --manual \
             --manual-public-ip-logging-ok \
-            --preferred-challenges dns \
+            $USE_CUSTOM_SERVER \
+            --preferred-challenges $CHALLENGE_METHOD \
             --agree-tos \
             --email $CFG_EMAIL \
             --rsa-key-size $CFG_RSA_KEY_SIZE \
@@ -101,6 +111,19 @@ do
             $CFG_ON_NEW_CERT \
             $NO_AUTO_UPGRADE \
             --manual-auth-hook ${LEALIDNS_ROOT}actions/create-dns-record.sh)
+    else
+        echo $CFG_CERTBOT_ROOT/$CFG_CERTBOT_CMD certonly \
+            --manual \
+            --manual-public-ip-logging-ok \
+            $USE_CUSTOM_SERVER \
+            --preferred-challenges $CHALLENGE_METHOD \
+            --agree-tos \
+            --email $CFG_EMAIL \
+            --rsa-key-size $CFG_RSA_KEY_SIZE \
+            $ARG_DOMAINS \
+            $CFG_ON_NEW_CERT \
+            $NO_AUTO_UPGRADE \
+            --manual-auth-hook ${LEALIDNS_ROOT}actions/create-dns-record.sh
     fi;
 
     if [[ ! $domain =~ "," ]]; then

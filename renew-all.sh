@@ -25,6 +25,15 @@ if [[ "$CFG_NO_AUTO_UPGRADE" == "on" ]]; then
     write_log "Turned off certbot aoto-updates.";
 fi
 
+if [[ "$CFG_ACME_VERSION" == "v2" ]]; then
+    USE_CUSTOM_SERVER="--server https://acme-v02.api.letsencrypt.org/directory"
+    CHALLENGE_METHOD=dns-01
+    write_log "Using ACMEv2 protocol.";
+else
+    CHALLENGE_METHOD=dns
+    write_log "Using ACMEv1 protocol.";
+fi
+
 write_log "Renew task started at $(date '+%Y-%m-%d %H:%M:%S')";
 
 # The path to list file of DNS record id
@@ -43,7 +52,8 @@ then
     CERTBOT_RESULT=$($CFG_CERTBOT_ROOT/$CFG_CERTBOT_CMD renew \
         --manual \
         --manual-public-ip-logging-ok \
-        --preferred-challenges dns \
+        $USE_CUSTOM_SERVER \
+        --preferred-challenges $CHALLENGE_METHOD \
         $ARG_FORCE \
         --agree-tos \
         --email $CFG_EMAIL \
@@ -51,6 +61,19 @@ then
         $CFG_ON_NEW_CERT \
         $ARG_NO_AUTO_UPGRADE \
         --manual-auth-hook ${LEALIDNS_ROOT}actions/create-dns-record.sh)
+else
+    echo $CFG_CERTBOT_ROOT/$CFG_CERTBOT_CMD renew \
+        --manual \
+        --manual-public-ip-logging-ok \
+        $USE_CUSTOM_SERVER \
+        --preferred-challenges $CHALLENGE_METHOD \
+        $ARG_FORCE \
+        --agree-tos \
+        --email $CFG_EMAIL \
+        --rsa-key-size $CFG_RSA_KEY_SIZE \
+        $CFG_ON_NEW_CERT \
+        $ARG_NO_AUTO_UPGRADE \
+        --manual-auth-hook ${LEALIDNS_ROOT}actions/create-dns-record.sh
 fi;
 
 write_log "Details: $CERTBOT_RESULT";
