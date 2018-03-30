@@ -76,7 +76,7 @@ do
         domains=$(strsplitby "," "$domain");
         for item in ${domains[@]}
         do
-            ARG_DOMAINS="$ARG_DOMAINS -d \"$item\""
+            ARG_DOMAINS="$ARG_DOMAINS -d $domain"
         done
 
         if [[ "$ARG_DOMAINS" == "" ]]; then
@@ -94,7 +94,7 @@ do
             continue;
         fi;
 
-        ARG_DOMAINS="-d \"$domain\""
+        ARG_DOMAINS="-d $domain"
 
         write_log "Requesting certificate for domain '${domain}'..."
     fi
