@@ -19,7 +19,7 @@ fi
 
 export CFG_FIELDS="domains email log-file certbot-root certbot-cmd rsa-key-size"
 export CFG_FIELDS="${CFG_FIELDS} after-cert before-cert after-new-cert"
-export CFG_FIELDS="${CFG_FIELDS} no-auto-upgrade acme-version"
+export CFG_FIELDS="${CFG_FIELDS} no-auto-upgrade acme-version alicli-profile"
 export CFG_RSA_KEY_SIZE=2048
 export CFG_LOG_FILE=./le-alidns.log
 export CFG_CERTBOT_ROOT=/usr/local/certbot
@@ -55,6 +55,11 @@ do
     if [ "$FIELD_NAME" == "domains" ]
     then
         export CFG_DOMAINS="$FIELD_VALUE ${CFG_DOMAINS}"
+    fi;
+
+    if [ "$FIELD_NAME" == "alicli-profile" ]
+    then
+        export CFG_ALICLI_PROFILE=$FIELD_VALUE
     fi;
 
     if [ "$FIELD_NAME" == "domain" ]

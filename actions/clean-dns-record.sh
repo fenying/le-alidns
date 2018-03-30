@@ -14,10 +14,16 @@ then
     exit
 fi
 
+if [[ ! -z "$CFG_ALICLI_PROFILE" ]]
+then
+    ALICLI_PROFILE="--profile $CFG_ALICLI_PROFILE"
+fi
+
 for RecordId in $RECORD_ID_LIST
 do
 echo "Deleting DNS record of Id ${RecordId}" >> $CFG_LOG_FILE
 API_RESULT=$(aliyuncli alidns DeleteDomainRecord \
+    $ALICLI_PROFILE \
     --RecordId ${RecordId} \
     --output table \
 )

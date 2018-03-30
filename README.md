@@ -63,6 +63,9 @@ find '.' -name '*.sh' -exec chmod 0700 {} \; # 设置 Shell 脚本执行权限
 
 2.  复制 default.conf 配置文件为 /etc/le-alidns.conf，并根据需要配置。
 
+    > LE-AliDNS 默认使用 /etc/le-alidns.conf 为配置文件路径，如果不想使用默认路径，
+    > 也可以通过配置环境变量 `export LEALIDNS_CONFIG=/path/to/config-file` 使用。
+
 ### 配置 Pip 源
 
 由于某些不可描述的原因，对于在国内使用 Pip 会出现无法下载或者下载极其缓慢的情况。
@@ -89,6 +92,13 @@ trusted-host=pypi.tuna.tsinghua.edu.cn
 执行 `sudo /path/to/renew-all.sh` 可以续签所有已经签发的证书（包括手动签发的）。
 
 > 执行前使用 `export LEALIDNS_FORCE=1` 可以强制续签证书，但是一般情况请不要使用。
+
+### 使用多个阿里云账户
+
+参考 [阿里云官方文档：多账号共用](https://help.aliyun.com/document_detail/30001.html?spm=a2c4g.11186623.6.574.ptIW3j)，手动配置不同账户使用的配置名称。
+
+然后配合环境变量 LEALIDNS_CONFIG 使用不同的 LE-AliDNS 配置文件，并将不同账户的配置
+名称写入到对应的 LE-AliDNS 配置文件的 alicli-profile 选项里。
 
 ## 作者
 

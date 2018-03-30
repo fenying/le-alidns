@@ -14,6 +14,11 @@ then
     exit -1
 fi
 
+if [[ ! -z "$CFG_ALICLI_PROFILE" ]]
+then
+    ALICLI_PROFILE="--profile $CFG_ALICLI_PROFILE"
+fi
+
 write_log "Certbot Domain: ${CERTBOT_DOMAIN}";
 
 write_log "Certbot Validation: ${CERTBOT_VALIDATION}";
@@ -34,6 +39,7 @@ write_log "Domain Record: ${DomainRecord}";
 write_log "Target Record: ${API_RR}";
 
 API_RESULT=$(aliyuncli alidns AddDomainRecord \
+    $ALICLI_PROFILE \
     --DomainName ${API_DomainName} \
     --Type TXT \
     --RR "${API_RR}" \
