@@ -69,6 +69,8 @@ do
         continue;
     fi;
 
+    ARG_DOMAINS=""
+
     if [[ $domain =~ "," ]]
     then
         domains=$(strsplitby "," "$domain");
