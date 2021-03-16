@@ -1,5 +1,7 @@
 # LE-AliDNS
 
+> DEPRECATED: Please use [acme.sh](https://acme.sh) instead.
+
 通过阿里云 DNS 为 Let's Encrypt 签发证书提供验证的脚本工具。
 
 ## 功能
